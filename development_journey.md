@@ -51,6 +51,19 @@ By using mock data for Stage 3, we decouple the engineering of the pipeline from
 
 ---
 
+## Phase 4: Gemini API Integration for Red-Teaming
+
+### The Goal
+The original plan relied on the Anthropic API to simulate a "Customer Support Bot" and generate the `bypass_success` labels for our Stage 3 severity model. However, to ensure the project remains 100% free and easily reproducible for grading, we needed a cost-free alternative without sacrificing model intelligence.
+
+### What We Did
+We entirely ripped out the `anthropic` SDK and replaced it with `google-generativeai`. The notebook now uses **Gemini 1.5 Flash**, which has an incredibly generous free tier. The logic remains the same: we feed Gemini the system prompt and the adversarial injection. If it refuses, it's a failed bypass (0). If it complies, it's a successful bypass (1). 
+
+### Why We Did It
+Academic projects should not be paywalled. By shifting to Gemini's free tier, the pipeline remains fully self-contained and allows anyone to run the end-to-end evaluation without a credit card. We also implemented a 4-second delay between requests to ensure we strictly abide by the free tier's 15 Requests-Per-Minute (RPM) rate limits, preventing API timeouts during evaluation.
+
+---
+
 ## Phase 3: Leave-One-Source-Out (LOSO) Validation
 
 ### The Goal

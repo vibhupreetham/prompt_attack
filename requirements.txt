@@ -6,6 +6,6 @@ lightgbm
 shap
 matplotlib
 seaborn
-anthropic
+google-generativeai
 jupyter
 nbformat
