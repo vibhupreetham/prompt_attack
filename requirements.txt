@@ -1,0 +1,11 @@
+datasets
+pandas
+scikit-learn
+xgboost==1.7.6
+lightgbm
+shap
+matplotlib
+seaborn
+anthropic
+jupyter
+nbformat
