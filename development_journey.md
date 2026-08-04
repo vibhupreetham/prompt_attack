@@ -48,3 +48,16 @@ To build the end-to-end Jupyter Notebook (`project.ipynb`) that handles EDA, Pre
 By using mock data for Stage 3, we decouple the engineering of the pipeline from external API dependencies. This allows us to guarantee that the machine learning code (feature extraction, training, evaluation, and SHAP plots) works perfectly. Once an API key is provided, the exact same pipeline will seamlessly slot in real behavioral data.
 
 *(Will be updated as development continues...)*
+
+---
+
+## Phase 3: Leave-One-Source-Out (LOSO) Validation
+
+### The Goal
+To rigorously test the Stage 1 binary classifier for "topical leakage" and spurious correlations. We want to ensure the model is learning generalized injection patterns, not just memorizing the vocabulary or quirks of a specific dataset (e.g., specific prompt templates heavily used in one source but absent in others).
+
+### What We Did
+We added **Stage 1.5** into our notebook pipeline. This step iterates through all unique sources (`deepset`, `jackhhao`, `rubend18`, `no_robots`, `safe-guard`). For each iteration, it holds out one source entirely as the test set, trains the XGBoost model on the remaining N-1 sources, and evaluates the performance (Accuracy and F1 Score) on the held-out source. 
+
+### Why We Did It
+This is a hallmark of robust security ML research. If the model achieves 95%+ F1 on a standard random split but drops to 40% F1 when a specific source is held out, it strongly suggests the model is exploiting spurious correlations (leakage) rather than understanding adversarial intent. Reporting these results honestly (alongside SHAP feature importance) makes for a much stronger academic contribution than merely presenting a high accuracy score on a standard train/test split.

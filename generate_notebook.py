@@ -166,7 +166,30 @@ with open('outputs/eval/metrics.json', 'w') as f:
     json.dump(metrics, f)
 """
 
-md_stage2 = "## 5. Stage 2: Multi-class Classification (Attack Type)\nFilter to only malicious prompts with known attack types."
+md_loso = "## 4.5. Stage 1.5: Leave-One-Source-Out (LOSO) Cross-Validation\\nTrain on N-1 sources, test on the held-out source to evaluate topical leakage and spurious correlation robustness."
+
+code_loso = """sources = merged_df['source'].unique()
+print("Leave-One-Source-Out Validation Results:")
+for held_out in sources:
+    train_df = merged_df[merged_df['source'] != held_out]
+    test_df = merged_df[merged_df['source'] == held_out]
+    
+    X_train_loso = vectorizer.transform(train_df['text'].astype(str))
+    y_train_loso = train_df['label']
+    
+    X_test_loso = vectorizer.transform(test_df['text'].astype(str))
+    y_test_loso = test_df['label']
+    
+    clf = XGBClassifier(eval_metric='logloss', base_score=0.5)
+    clf.fit(X_train_loso, y_train_loso)
+    preds = clf.predict(X_test_loso)
+    acc = accuracy_score(y_test_loso, preds)
+    f1 = f1_score(y_test_loso, preds, zero_division=0)
+    
+    print(f"Held out: {held_out:12s} | Test Size: {len(test_df):5d} | Accuracy: {acc:.4f} | F1: {f1:.4f}")
+"""
+
+md_stage2 = "## 5. Stage 2: Multi-class Classification (Attack Type)\\nFilter to only malicious prompts with known attack types."
 
 code_stage2 = """known_attacks = merged_df[(merged_df['label'] == 1) & (merged_df['attack_type'] != 'unknown')]
 if not known_attacks.empty:
@@ -262,6 +285,7 @@ md_writeup = """## Predictive Analysis Writeup
 
 ### Overall Results
 - **Stage 1 (Binary Detection)**: Provided a strong baseline for distinguishing benign prompts from malicious ones.
+- **Stage 1.5 (Leave-One-Source-Out)**: By training on N-1 sources and testing on the held-out source, we explicitly tested for topical leakage. Drops in F1 on specific holdouts indicate the model may be memorizing source-specific jargon rather than true adversarial structure.
 - **Stage 2 (Attack Type)**: Highlighted differences between jailbreaks and instruction overrides.
 - **Stage 3 (Severity Prediction)**: The novel contribution of this project. By predicting actual bypass success against a simulated target using the Anthropic API, we move from just detecting bad inputs to triaging them based on risk.
 
@@ -283,6 +307,8 @@ nb['cells'] = [
     nbf.v4.new_code_cell(code_prep),
     nbf.v4.new_markdown_cell(md_stage1_model),
     nbf.v4.new_code_cell(code_stage1_model),
+    nbf.v4.new_markdown_cell(md_loso),
+    nbf.v4.new_code_cell(code_loso),
     nbf.v4.new_markdown_cell(md_stage2),
     nbf.v4.new_code_cell(code_stage2),
     nbf.v4.new_markdown_cell(md_behavioral),
