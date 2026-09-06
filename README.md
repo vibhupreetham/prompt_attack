@@ -2,9 +2,7 @@
 
 **Prompt Injection Severity Prediction: A Multi-Stage ML Pipeline with Behavioral Red-Teaming**
 
-**Author:** Vibhu Preetham  
-**Date:** September 2026  
-**Project:** CS Capstone / Independent Research
+
 
 ---
 
