@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>System Architecture — Prompt Injection Severity Predictor</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f7f8fa; font-family: 'Inter', sans-serif; }
+  .page {
+    width: 1100px; margin: 40px auto; background: #fff;
+    border: 1px solid #d4d7dc; border-radius: 10px;
+    padding: 48px 52px 56px; box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #6b7280; margin-bottom: 32px; }
+  .subtitle em { font-style: normal; color: #4b5563; font-weight: 500; }
+  svg text { font-family: 'Inter', sans-serif; }
+
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; border: none; margin: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>System Architecture — Multi-Stage Prompt Injection Severity Predictor</h1>
+  
+  <svg viewBox="0 0 1000 700" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#4F8EF7"/><stop offset="100%" stop-color="#3570D4"/>
+      </linearGradient>
+      <linearGradient id="gPurple" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#9B7BF7"/><stop offset="100%" stop-color="#7C5CD6"/>
+      </linearGradient>
+      <linearGradient id="gTeal" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#34BFA3"/><stop offset="100%" stop-color="#28A38A"/>
+      </linearGradient>
+      <linearGradient id="gOrange" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#D97706"/>
+      </linearGradient>
+      <linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#EF4444"/><stop offset="100%" stop-color="#DC2626"/>
+      </linearGradient>
+      <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#22C55E"/><stop offset="100%" stop-color="#16A34A"/>
+      </linearGradient>
+
+      <marker id="arrowGray" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <polygon points="0 0, 9 3.5, 0 7" fill="#9ca3af"/>
+      </marker>
+      <marker id="arrowBlue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <polygon points="0 0, 9 3.5, 0 7" fill="#4F8EF7"/>
+      </marker>
+      <marker id="arrowPurple" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <polygon points="0 0, 9 3.5, 0 7" fill="#9B7BF7"/>
+      </marker>
+      <marker id="arrowTeal" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <polygon points="0 0, 9 3.5, 0 7" fill="#34BFA3"/>
+      </marker>
+      <marker id="arrowOrange" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <polygon points="0 0, 9 3.5, 0 7" fill="#D97706"/>
+      </marker>
+      <marker id="arrowRed" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <polygon points="0 0, 9 3.5, 0 7" fill="#EF4444"/>
+      </marker>
+      <marker id="arrowGreen" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <polygon points="0 0, 9 3.5, 0 7" fill="#22C55E"/>
+      </marker>
+    </defs>
+
+    <rect x="0" y="0" width="1000" height="700" rx="8" fill="#fafbfc" stroke="#e5e7eb" stroke-width="1"/>
+
+    <!-- LAYER LABELS -->
+    <text x="18" y="28" font-size="11" fill="#9ca3af" font-weight="600" letter-spacing="1.5">LAYER 1 — DATA ACQUISITION</text>
+    <line x1="18" y1="34" x2="280" y2="34" stroke="#e5e7eb" stroke-width="1"/>
+
+    <text x="18" y="258" font-size="11" fill="#9ca3af" font-weight="600" letter-spacing="1.5">LAYER 2 — PREPROCESSING</text>
+    <line x1="18" y1="264" x2="260" y2="264" stroke="#e5e7eb" stroke-width="1"/>
+
+    <text x="18" y="422" font-size="11" fill="#9ca3af" font-weight="600" letter-spacing="1.5">LAYER 3 — ML PIPELINE</text>
+    <line x1="18" y1="428" x2="234" y2="428" stroke="#e5e7eb" stroke-width="1"/>
+
+    <text x="18" y="595" font-size="11" fill="#9ca3af" font-weight="600" letter-spacing="1.5">LAYER 4 — OUTPUTS</text>
+    <line x1="18" y1="601" x2="192" y2="601" stroke="#e5e7eb" stroke-width="1"/>
+
+    <!-- ============================================================ -->
+    <!-- LAYER 1 — DATA SOURCES (5 cards, evenly spaced, w=132 g=19)  -->
+    <!-- ============================================================ -->
+    <!-- deepset -->
+    <rect x="40" y="52" width="132" height="86" rx="8" fill="#fff" stroke="#d1d5db" stroke-width="1.5"/>
+    <rect x="40" y="52" width="132" height="26" rx="8" fill="url(#gBlue)"/>
+    <rect x="40" y="68" width="132" height="10" fill="url(#gBlue)"/>
+    <text x="106" y="69" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">deepset</text>
+    <text x="106" y="100" text-anchor="middle" font-size="10" fill="#374151">prompt-injections</text>
+    <text x="106" y="118" text-anchor="middle" font-size="9" fill="#9ca3af">binary labels</text>
+    <circle cx="162" cy="58" r="5" fill="#fff" opacity=".35"/>
+
+    <!-- jackhhao -->
+    <rect x="191" y="52" width="132" height="86" rx="8" fill="#fff" stroke="#d1d5db" stroke-width="1.5"/>
+    <rect x="191" y="52" width="132" height="26" rx="8" fill="url(#gBlue)"/>
+    <rect x="191" y="68" width="132" height="10" fill="url(#gBlue)"/>
+    <text x="257" y="69" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">jackhhao</text>
+    <text x="257" y="100" text-anchor="middle" font-size="10" fill="#374151">jailbreak-classification</text>
+    <text x="257" y="118" text-anchor="middle" font-size="9" fill="#9ca3af">typed attacks</text>
+    <circle cx="313" cy="58" r="5" fill="#fff" opacity=".35"/>
+
+    <!-- rubend18 -->
+    <rect x="342" y="52" width="132" height="86" rx="8" fill="#fff" stroke="#d1d5db" stroke-width="1.5"/>
+    <rect x="342" y="52" width="132" height="26" rx="8" fill="url(#gBlue)"/>
+    <rect x="342" y="68" width="132" height="10" fill="url(#gBlue)"/>
+    <text x="408" y="69" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">rubend18</text>
+    <text x="408" y="100" text-anchor="middle" font-size="10" fill="#374151">ChatGPT-Jailbreak</text>
+    <text x="408" y="118" text-anchor="middle" font-size="9" fill="#9ca3af">persona prompts</text>
+    <circle cx="464" cy="58" r="5" fill="#fff" opacity=".35"/>
+
+    <!-- HuggingFaceH4 -->
+    <rect x="493" y="52" width="132" height="86" rx="8" fill="#fff" stroke="#d1d5db" stroke-width="1.5"/>
+    <rect x="493" y="52" width="132" height="26" rx="8" fill="url(#gTeal)"/>
+    <rect x="493" y="68" width="132" height="10" fill="url(#gTeal)"/>
+    <text x="559" y="69" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">HuggingFaceH4</text>
+    <text x="559" y="100" text-anchor="middle" font-size="10" fill="#374151">no_robots</text>
+    <text x="559" y="118" text-anchor="middle" font-size="9" fill="#9ca3af">benign prompts</text>
+    <circle cx="615" cy="58" r="5" fill="#fff" opacity=".35"/>
+
+    <!-- xTRam1 -->
+    <rect x="644" y="52" width="132" height="86" rx="8" fill="#fff" stroke="#d1d5db" stroke-width="1.5"/>
+    <rect x="644" y="52" width="132" height="26" rx="8" fill="url(#gBlue)"/>
+    <rect x="644" y="68" width="132" height="10" fill="url(#gBlue)"/>
+    <text x="710" y="69" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">xTRam1</text>
+    <text x="710" y="100" text-anchor="middle" font-size="10" fill="#374151">safe-guard-prompt-inj.</text>
+    <text x="710" y="118" text-anchor="middle" font-size="9" fill="#9ca3af">dual-label</text>
+    <circle cx="766" cy="58" r="5" fill="#fff" opacity=".35"/>
+
+    <!-- collector bus: stems from each card down to a shared line, then into Merger -->
+    <line x1="106" y1="138" x2="106" y2="152" stroke="#9ca3af" stroke-width="1.2"/>
+    <line x1="257" y1="138" x2="257" y2="152" stroke="#9ca3af" stroke-width="1.2"/>
+    <line x1="408" y1="138" x2="408" y2="152" stroke="#9ca3af" stroke-width="1.2"/>
+    <line x1="559" y1="138" x2="559" y2="152" stroke="#9ca3af" stroke-width="1.2"/>
+    <line x1="710" y1="138" x2="710" y2="152" stroke="#9ca3af" stroke-width="1.2"/>
+    <line x1="106" y1="152" x2="710" y2="152" stroke="#c7cbd1" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="408" y1="152" x2="408" y2="167" stroke="#9ca3af" stroke-width="1.3" marker-end="url(#arrowGray)"/>
+
+    <!-- Merger -->
+    <rect x="338" y="168" width="140" height="58" rx="8" fill="#f5f6f8" stroke="#c8cbcf" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="408" y="193" text-anchor="middle" font-size="12" fill="#6b7280" font-weight="600">Merger</text>
+    <text x="408" y="211" text-anchor="middle" font-size="9" fill="#9ca3af">concat &amp; dedup</text>
+
+    <!-- Merger -> Unified Corpus -->
+    <line x1="392" y1="226" x2="155" y2="286" stroke="#9ca3af" stroke-width="1.3" marker-end="url(#arrowGray)"/>
+
+    <!-- LEGEND (own column, right side — no longer overlapping Merger) -->
+    <rect x="826" y="52" width="134" height="174" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="893" y="70" text-anchor="middle" font-size="9" fill="#6b7280" font-weight="600" letter-spacing="0.5">LEGEND</text>
+    <rect x="836" y="87" width="14" height="10" rx="2" fill="url(#gBlue)"/>
+    <text x="858" y="96" font-size="8.5" fill="#374151">Data source</text>
+    <rect x="836" y="107" width="14" height="10" rx="2" fill="url(#gTeal)"/>
+    <text x="858" y="116" font-size="8.5" fill="#374151">Benign / validation</text>
+    <rect x="836" y="127" width="14" height="10" rx="2" fill="url(#gOrange)"/>
+    <text x="858" y="136" font-size="8.5" fill="#374151">External API call</text>
+    <rect x="836" y="147" width="14" height="10" rx="2" fill="url(#gRed)"/>
+    <text x="858" y="156" font-size="8.5" fill="#374151">Novel contribution</text>
+    <line x1="836" y1="174" x2="850" y2="174" stroke="#d1d5db" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="858" y="177" font-size="8.5" fill="#374151">Future work</text>
+
+    <!-- ============================================================ -->
+    <!-- LAYER 2 — PREPROCESSING (4 cards, w varies, g=30)            -->
+    <!-- ============================================================ -->
+    <!-- Unified Corpus -->
+    <rect x="40" y="286" width="190" height="92" rx="8" fill="#fff" stroke="#3570D4" stroke-width="2"/>
+    <text x="135" y="311" text-anchor="middle" font-size="11" fill="#3570D4" font-weight="700">Unified Corpus</text>
+    <text x="135" y="329" text-anchor="middle" font-size="10" fill="#374151">merged_corpus.csv</text>
+    <line x1="60" y1="339" x2="210" y2="339" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="135" y="355" text-anchor="middle" font-size="9" fill="#9ca3af">9,000+ samples</text>
+    <text x="135" y="369" text-anchor="middle" font-size="8.3" fill="#9ca3af">4 fields: text | label | attack_type | source</text>
+
+    <!-- TF-IDF -->
+    <rect x="260" y="286" width="160" height="92" rx="8" fill="#fff" stroke="#d1d5db" stroke-width="1.5"/>
+    <text x="340" y="311" text-anchor="middle" font-size="11" fill="#1a1a2e" font-weight="600">TF-IDF Vectorizer</text>
+    <text x="340" y="329" text-anchor="middle" font-size="10" fill="#374151">5,000 features</text>
+    <text x="340" y="345" text-anchor="middle" font-size="10" fill="#374151">uni + bigrams</text>
+    <line x1="280" y1="355" x2="400" y2="355" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="340" y="371" text-anchor="middle" font-size="9" fill="#9ca3af">sparse matrix output</text>
+
+    <!-- Stratified Split -->
+    <rect x="450" y="286" width="160" height="92" rx="8" fill="#fff" stroke="#d1d5db" stroke-width="1.5"/>
+    <text x="530" y="311" text-anchor="middle" font-size="11" fill="#1a1a2e" font-weight="600">Stratified Split</text>
+    <text x="530" y="329" text-anchor="middle" font-size="10" fill="#374151">80 / 20</text>
+    <line x1="470" y1="339" x2="590" y2="339" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="530" y="355" text-anchor="middle" font-size="9" fill="#9ca3af">random_state=42</text>
+    <text x="530" y="369" text-anchor="middle" font-size="9" fill="#9ca3af">class-stratified</text>
+
+    <!-- Gemini API -->
+    <rect x="640" y="286" width="160" height="92" rx="8" fill="#fff" stroke="#D97706" stroke-width="1.5"/>
+    <rect x="640" y="286" width="160" height="24" rx="8" fill="url(#gOrange)"/>
+    <rect x="640" y="300" width="160" height="10" fill="url(#gOrange)"/>
+    <text x="720" y="303" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">GEMINI API</text>
+    <text x="720" y="329" text-anchor="middle" font-size="10" fill="#374151">Red-team Evaluation</text>
+    <text x="720" y="345" text-anchor="middle" font-size="10" fill="#374151">500 samples</text>
+    <line x1="660" y1="355" x2="780" y2="355" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="720" y="371" text-anchor="middle" font-size="9" fill="#9ca3af">bypass_success label (0/1)</text>
+
+    <!-- row flow -->
+    <line x1="230" y1="332" x2="260" y2="332" stroke="#3570D4" stroke-width="1.3" marker-end="url(#arrowBlue)"/>
+    <line x1="420" y1="332" x2="450" y2="332" stroke="#9ca3af" stroke-width="1.3" marker-end="url(#arrowGray)"/>
+
+    <!-- Unified Corpus -> Gemini API (routed underneath the row, not through boxes) -->
+    <line x1="135" y1="378" x2="135" y2="395" stroke="#D97706" stroke-width="1.2" stroke-dasharray="6 3"/>
+    <line x1="135" y1="395" x2="700" y2="395" stroke="#D97706" stroke-width="1.2" stroke-dasharray="6 3"/>
+    <line x1="700" y1="395" x2="700" y2="378" stroke="#D97706" stroke-width="1.2" stroke-dasharray="6 3" marker-end="url(#arrowOrange)"/>
+
+    <!-- ============================================================ -->
+    <!-- LAYER 3 — ML PIPELINE (4 stages, w=175 g=20)                 -->
+    <!-- ============================================================ -->
+    <line x1="530" y1="378" x2="127.5" y2="448" stroke="#4F8EF7" stroke-width="1.3" marker-end="url(#arrowBlue)"/>
+    <line x1="740" y1="378" x2="740" y2="448" stroke="#EF4444" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+
+    <!-- Stage 1: Binary -->
+    <rect x="40" y="448" width="175" height="115" rx="8" fill="#fff" stroke="#4F8EF7" stroke-width="2"/>
+    <rect x="40" y="448" width="175" height="26" rx="8" fill="url(#gBlue)"/>
+    <rect x="40" y="464" width="175" height="10" fill="url(#gBlue)"/>
+    <text x="127.5" y="466" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">STAGE 1 — Binary Classifier</text>
+    <text x="127.5" y="489" text-anchor="middle" font-size="10" fill="#374151">XGBoost (binary)</text>
+    <line x1="60" y1="499" x2="195" y2="499" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="127.5" y="515" text-anchor="middle" font-size="9.5" fill="#374151">benign vs. malicious</text>
+    <text x="127.5" y="531" text-anchor="middle" font-size="9" fill="#9ca3af">F1 / AUC evaluation</text>
+
+    <line x1="215" y1="505" x2="235" y2="505" stroke="#7C5CD6" stroke-width="1.3" marker-end="url(#arrowPurple)"/>
+
+    <!-- Stage 1.5: LOSO -->
+    <rect x="235" y="448" width="175" height="115" rx="8" fill="#fff" stroke="#7C5CD6" stroke-width="2"/>
+    <rect x="235" y="448" width="175" height="26" rx="8" fill="url(#gPurple)"/>
+    <rect x="235" y="464" width="175" height="10" fill="url(#gPurple)"/>
+    <text x="322.5" y="466" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">STAGE 1.5 — LOSO Validation</text>
+    <text x="322.5" y="489" text-anchor="middle" font-size="10" fill="#374151">N-1 train / 1 hold-out</text>
+    <line x1="255" y1="499" x2="390" y2="499" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="322.5" y="515" text-anchor="middle" font-size="9.5" fill="#374151">5-fold leave-one-source-out</text>
+    <text x="322.5" y="531" text-anchor="middle" font-size="9" fill="#9ca3af">topical leakage detection</text>
+
+    <line x1="410" y1="505" x2="430" y2="505" stroke="#34BFA3" stroke-width="1.3" marker-end="url(#arrowTeal)"/>
+
+    <!-- Stage 2: Multi-class -->
+    <rect x="430" y="448" width="175" height="115" rx="8" fill="#fff" stroke="#34BFA3" stroke-width="2"/>
+    <rect x="430" y="448" width="175" height="26" rx="8" fill="url(#gTeal)"/>
+    <rect x="430" y="464" width="175" height="10" fill="url(#gTeal)"/>
+    <text x="517.5" y="466" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">STAGE 2 — Multi-class</text>
+    <text x="517.5" y="489" text-anchor="middle" font-size="10" fill="#374151">XGBoost (multi-class)</text>
+    <line x1="450" y1="499" x2="585" y2="499" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="517.5" y="515" text-anchor="middle" font-size="9.5" fill="#374151">attack type classification</text>
+    <text x="517.5" y="531" text-anchor="middle" font-size="9" fill="#9ca3af">jailbreak | override | ...</text>
+
+    <line x1="605" y1="505" x2="625" y2="505" stroke="#EF4444" stroke-width="1.3" marker-end="url(#arrowRed)"/>
+
+    <!-- Stage 3: Severity -->
+    <rect x="625" y="448" width="175" height="115" rx="8" fill="#fff" stroke="#EF4444" stroke-width="2.5"/>
+    <rect x="625" y="448" width="175" height="26" rx="8" fill="url(#gRed)"/>
+    <rect x="625" y="464" width="175" height="10" fill="url(#gRed)"/>
+    <text x="712.5" y="466" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">STAGE 3 — Severity</text>
+    <text x="712.5" y="489" text-anchor="middle" font-size="10" fill="#374151">XGBoost (ordinal)</text>
+    <line x1="645" y1="499" x2="780" y2="499" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="712.5" y="515" text-anchor="middle" font-size="9.5" fill="#374151">bypass likelihood (0/1)</text>
+    <text x="712.5" y="531" text-anchor="middle" font-size="9" fill="#9ca3af">★ novel contribution</text>
+
+    <!-- novel badge, slightly rotated for a hand-placed feel -->
+    <g transform="rotate(-3 712.5 548)">
+      <rect x="677.5" y="539" width="70" height="18" rx="9" fill="#FEF2F2" stroke="#EF4444" stroke-width="1"/>
+      <text x="712.5" y="551.5" text-anchor="middle" font-size="8.5" fill="#EF4444" font-weight="600">★ NOVEL</text>
+    </g>
+
+    <!-- ============================================================ -->
+    <!-- LAYER 4 — OUTPUTS (aligned directly under their source stage) -->
+    <!-- ============================================================ -->
+    <line x1="127.5" y1="563" x2="127.5" y2="620" stroke="#22C55E" stroke-width="1.2" marker-end="url(#arrowGreen)"/>
+    <line x1="322.5" y1="563" x2="322.5" y2="620" stroke="#22C55E" stroke-width="1.2" marker-end="url(#arrowGreen)"/>
+    <line x1="517.5" y1="563" x2="517.5" y2="620" stroke="#d1d5db" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="712.5" y1="563" x2="712.5" y2="620" stroke="#EF4444" stroke-width="1.2" marker-end="url(#arrowRed)"/>
+
+    <!-- SHAP (under Stage 1) -->
+    <rect x="40" y="620" width="175" height="54" rx="8" fill="#fff" stroke="#22C55E" stroke-width="1.5"/>
+    <text x="127.5" y="644" text-anchor="middle" font-size="10.5" fill="#1a1a2e" font-weight="600">SHAP Explainability</text>
+    <text x="127.5" y="662" text-anchor="middle" font-size="9" fill="#9ca3af">feature importance plots</text>
+
+    <!-- Metrics (under Stage 1.5) -->
+    <rect x="235" y="620" width="175" height="54" rx="8" fill="#fff" stroke="#22C55E" stroke-width="1.5"/>
+    <text x="322.5" y="644" text-anchor="middle" font-size="10.5" fill="#1a1a2e" font-weight="600">Metrics (JSON)</text>
+    <text x="322.5" y="662" text-anchor="middle" font-size="9" fill="#9ca3af">F1, AUC, LOSO table</text>
+
+    <!-- Dashboard placeholder (under Stage 2, future work) -->
+    <rect x="430" y="620" width="175" height="54" rx="8" fill="#f9fafb" stroke="#d1d5db" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="517.5" y="644" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-weight="500">Dashboard (future)</text>
+    <text x="517.5" y="662" text-anchor="middle" font-size="9" fill="#c0c4cc">integration planned</text>
+
+    <!-- Severity-Tiered Alerts (under Stage 3) -->
+    <rect x="625" y="620" width="175" height="54" rx="8" fill="#fff" stroke="#EF4444" stroke-width="1.5"/>
+    <text x="712.5" y="644" text-anchor="middle" font-size="10.5" fill="#1a1a2e" font-weight="600">Severity-Tiered Alerts</text>
+    <text x="712.5" y="662" text-anchor="middle" font-size="9" fill="#9ca3af">top-10% high-risk triage</text>
+
+    <text x="982" y="690" text-anchor="end" font-size="8" fill="#c0c4cc">v1.2 &middot; updated Sep 2026</text>
+
+  </svg>
+</div>
+</body>
+</html>

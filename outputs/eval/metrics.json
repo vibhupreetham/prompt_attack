@@ -1,1 +1,150 @@
-{"stage1_f1": 0.9567765567765568, "stage1_auc": 0.9959475771345871}
+{
+  "project_name": "Multi-Stage Prompt Injection Severity & Bypass Likelihood Predictor",
+  "dataset": {
+    "total_samples": 21608,
+    "benign_samples": 18091,
+    "malicious_samples": 3517,
+    "sources": {
+      "no_robots": 9999,
+      "safe-guard": 9611,
+      "jackhhao": 1291,
+      "deepset": 662,
+      "rubend18": 45
+    }
+  },
+  "stage1_binary": {
+    "accuracy": 0.987,
+    "precision": 0.9909,
+    "recall": 0.9289,
+    "f1_score": 0.9589,
+    "roc_auc": 0.9949
+  },
+  "stage1_baselines": [
+    {
+      "Model": "Multinomial Naive Bayes",
+      "Accuracy": 0.9845,
+      "Precision": 0.9833,
+      "Recall": 0.9203,
+      "F1 Score": 0.9508,
+      "ROC-AUC": 0.9937,
+      "Train Time (s)": 0.0,
+      "Latency (ms/sample)": 0.001
+    },
+    {
+      "Model": "Logistic Regression",
+      "Accuracy": 0.9852,
+      "Precision": 0.9953,
+      "Recall": 0.9132,
+      "F1 Score": 0.9525,
+      "ROC-AUC": 0.997,
+      "Train Time (s)": 0.07,
+      "Latency (ms/sample)": 0.0
+    },
+    {
+      "Model": "Linear SVM",
+      "Accuracy": 0.9903,
+      "Precision": 0.9882,
+      "Recall": 0.9516,
+      "F1 Score": 0.9696,
+      "ROC-AUC": 0.9973,
+      "Train Time (s)": 0.04,
+      "Latency (ms/sample)": 0.001
+    },
+    {
+      "Model": "Random Forest",
+      "Accuracy": 0.9769,
+      "Precision": 0.9967,
+      "Recall": 0.8606,
+      "F1 Score": 0.9237,
+      "ROC-AUC": 0.9895,
+      "Train Time (s)": 0.4,
+      "Latency (ms/sample)": 0.044
+    },
+    {
+      "Model": "XGBoost (Proposed)",
+      "Accuracy": 0.987,
+      "Precision": 0.9909,
+      "Recall": 0.9289,
+      "F1 Score": 0.9589,
+      "ROC-AUC": 0.9949,
+      "Train Time (s)": 3.11,
+      "Latency (ms/sample)": 0.008
+    }
+  ],
+  "stage1_loso": [
+    {
+      "Holdout Source": "deepset",
+      "Test Size": 662,
+      "Positive (Malicious)": 263,
+      "Negative (Benign)": 399,
+      "Accuracy": 0.642,
+      "F1 Score": 0.1856
+    },
+    {
+      "Holdout Source": "jackhhao",
+      "Test Size": 1291,
+      "Positive (Malicious)": 653,
+      "Negative (Benign)": 638,
+      "Accuracy": 0.7514,
+      "F1 Score": 0.6806
+    },
+    {
+      "Holdout Source": "rubend18",
+      "Test Size": 45,
+      "Positive (Malicious)": 45,
+      "Negative (Benign)": 0,
+      "Accuracy": 0.9556,
+      "F1 Score": 0.9773
+    },
+    {
+      "Holdout Source": "no_robots",
+      "Test Size": 9999,
+      "Positive (Malicious)": 0,
+      "Negative (Benign)": 9999,
+      "Accuracy": 0.9749,
+      "F1 Score": 0.0
+    },
+    {
+      "Holdout Source": "safe-guard",
+      "Test Size": 9611,
+      "Positive (Malicious)": 2556,
+      "Negative (Benign)": 7055,
+      "Accuracy": 0.7736,
+      "F1 Score": 0.2944
+    }
+  ],
+  "stage2_multiclass": {
+    "accuracy": 0.9824,
+    "f1_macro": 0.9405,
+    "categories": [
+      "benign",
+      "direct_injection",
+      "jailbreak_persona",
+      "system_override"
+    ]
+  },
+  "stage3_severity": {
+    "accuracy": 0.79,
+    "precision": 0.7857,
+    "recall": 0.5946,
+    "f1_score": 0.6769,
+    "roc_auc": 0.7606
+  },
+  "top_features": [
+    "prompt",
+    "are healthbot",
+    "information",
+    "ignore all",
+    "previous",
+    "data",
+    "medical",
+    "sensitive",
+    "begins with",
+    "chatgpt",
+    "with the",
+    "me",
+    "ai",
+    "or will",
+    "you are"
+  ]
+}
