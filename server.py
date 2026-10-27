@@ -213,12 +213,32 @@ class PrismHandler(SimpleHTTPRequestHandler):
 
 def run_server():
     load_models()
-    server_address = ('', PORT)
-    httpd = HTTPServer(server_address, PrismHandler)
+    port = PORT
+    httpd = None
+    
+    # Enable address reuse to prevent Errno 48 on fast restarts
+    HTTPServer.allow_reuse_address = True
+    
+    for attempt in range(10):
+        try:
+            server_address = ('', port)
+            httpd = HTTPServer(server_address, PrismHandler)
+            break
+        except OSError as e:
+            if e.errno == 48: # Address already in use
+                print(f"Port {port} is busy, trying port {port + 1}...")
+                port += 1
+            else:
+                raise e
+
+    if not httpd:
+        print("Error: Could not bind to any port between 8000 and 8010.")
+        return
+
     print("="*65)
-    print(f"  PRISM-Guard Live Server running at: http://localhost:{PORT}")
+    print(f"  PRISM-Guard Live Server running at: http://localhost:{port}")
     print(f"  Open in your browser to test and present to your professor!")
-    print(f"  API Endpoint: POST http://localhost:{PORT}/api/predict")
+    print(f"  API Endpoint: POST http://localhost:{port}/api/predict")
     print("="*65)
     try:
         httpd.serve_forever()
